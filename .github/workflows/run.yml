@@ -1,0 +1,9 @@
+name: dslementary-jxa
+on: workflow_dispatch
+
+jobs:
+  run:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: osascript -l JavaScript script.js
