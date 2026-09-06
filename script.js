@@ -25,7 +25,11 @@ function run() {
   try {
     $.puts("dslementary: creating WebDriver session");
     const session = wd("POST", "/session", {
-      capabilities: { alwaysMatch: { browserName: "Safari" } }
+      capabilities: {
+        alwaysMatch: {
+          browserName: "Safari"
+        }
+      }
     });
 
     if (!session.value || !session.value.sessionId) {
@@ -36,7 +40,9 @@ function run() {
     sessionId = session.value.sessionId;
     $.puts("session: " + sessionId);
 
-    wd("POST", "/session/" + sessionId + "/url", { url: "https://example.com" });
+    wd("POST", "/session/" + sessionId + "/url", {
+      url: "https://example.com"
+    });
 
     const title = wd("GET", "/session/" + sessionId + "/title");
     $.puts("title: " + title.value);
