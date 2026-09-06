@@ -4,6 +4,38 @@ on: workflow_dispatch
 jobs:
   run:
     runs-on: macos-latest
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
-      - run: osascript -l JavaScript script.js
+
+      - name: Enable and start safaridriver
+        run: |
+          set -eu
+          sudo safaridriver --enable
+          safaridriver -p 4444 > safaridriver.log 2>&1 &
+          echo $! > safaridriver.pid
+
+          ready=0
+          for i in $(seq 1 20); do
+            if curl -sf http://localhost:4444/status > /dev/null; then
+              ready=1
+              break
+            fi
+            sleep 0.5
+          done
+
+          if [ "$ready" -ne 1 ]; then
+            echo "safaridriver never came up:"
+            cat safaridriver.log || true
+            exit 1
+          fi
+
+      - name: Run JXA script
+        run: osascript -l JavaScript script.js
+
+      - name: Stop safaridriver
+        if: always()
+        run: |
+          if [ -f safaridriver.pid ]; then
+            kill "$(cat safaridriver.pid)" 2>/dev/null || true
+          fi
